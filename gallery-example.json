@@ -2,15 +2,15 @@
   "version": 1,
   "models": [
     {
-      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-a.sog&c=COMPRESSED_PARAMS",
+      "shareUrl": "https://nuninhosousa25.github.io/playcanvas_3dgs_viewer/?a=2.87&b=1.18&r=1.72&x=-19.47&y=59.10&z=3.542&f=75.0&s=0.02&cl=1&lz=1&lv=0&lh=0&ep=1&zmin=1.01&zmax=15.1&content=https%3A%2F%2Fnuno-sousa.com%2Frepository%2Fuploads%2FAmy_converted.sog",
       "title": "Version A"
     },
     {
-      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-b.sog&collision=https://your-host.com/col.glb&c=COMPRESSED_PARAMS",
+      "shareUrl": "https://nuninhosousa25.github.io/playcanvas_3dgs_viewer/?a=12.52&b=0.93&r=0.20&x=-4.38&y=88.28&z=15.000&f=75.0&s=0.10&cl=1&lz=1&lv=0&lh=0&ep=1&zmin=1.01&zmax=15.1&content=https%3A%2F%2Fnuninhosousa25.github.io%2Fplaycanvas_3dgs_viewer%2Fscene.sog",
       "title": "Version B"
     },
     {
-      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-c.sog&audio=https://your-host.com/ambient.mp3&c=COMPRESSED_PARAMS",
+      "shareUrl": "https://nuninhosousa25.github.io/playcanvas_3dgs_viewer/?a=2.87&b=1.18&r=1.72&x=-19.47&y=59.10&z=3.542&f=75.0&s=0.02&cl=1&lz=1&lv=0&lh=0&ep=1&zmin=1.01&zmax=15.1&content=https%3A%2F%2Fnuno-sousa.com%2Frepository%2Fuploads%2FAmy_converted.sog",
       "title": "Version C"
     }
   ]
