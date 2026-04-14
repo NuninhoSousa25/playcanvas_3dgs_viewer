@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-a.sog&c=COMPRESSED_PARAMS",
+      "title": "Version A"
+    },
+    {
+      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-b.sog&collision=https://your-host.com/col.glb&c=COMPRESSED_PARAMS",
+      "title": "Version B"
+    },
+    {
+      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-c.sog&audio=https://your-host.com/ambient.mp3&c=COMPRESSED_PARAMS",
+      "title": "Version C"
+    }
+  ]
+}
