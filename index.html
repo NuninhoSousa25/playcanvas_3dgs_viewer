@@ -21,51 +21,15 @@
             const settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : './settings.json';
             const galleryUrl = url.searchParams.get('gallery') ?? null;
 
-            // Gallery mode: fetch manifest to extract the first model's content URL
-            // so the eager-fetch below starts immediately (same as single-model mode).
-            let collisionUrl = url.searchParams.get('collision') ?? url.searchParams.get('voxel');
-            let contentUrl = url.searchParams.has('content') ? url.searchParams.get('content') : 'https://nuno-sousa.com/repository/uploads/Amy_converted.sog';
+            // Initial URLs — gallery resolution may overwrite these once the manifest loads.
+            const collisionUrl = url.searchParams.get('collision') ?? url.searchParams.get('voxel');
+            const contentUrl = url.searchParams.has('content') ? url.searchParams.get('content') : 'https://nuno-sousa.com/repository/uploads/Amy_converted.sog';
 
-            if (galleryUrl) {
-                try {
-                    const response = await fetch(galleryUrl);
-                    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-                    const text = await response.text();
-                    // Same lenient parse as index.ts so a stale deploy with an
-                    // unquoted "version" doesn't block the eager content fetch.
-                    let manifest;
-                    try {
-                        manifest = JSON.parse(text);
-                    } catch {
-                        const repaired = text.replace(
-                            /("version"\s*:\s*)([A-Za-z_][A-Za-z0-9_-]*)(\s*[,}])/,
-                            '$1"$2"$3'
-                        );
-                        manifest = JSON.parse(repaired);
-                    }
-                    const firstEntry = manifest?.models?.[0];
-                    if (firstEntry?.shareUrl) {
-                        // Extract content (and optionally collision) from the first entry's share URL
-                        const firstParams = new URLSearchParams(new URL(firstEntry.shareUrl, location.href).search);
-                        // Short-coded: 'm' = content, 'col' = collision; also handle verbose names
-                        const firstContent = firstParams.get('content') ?? firstParams.get('m');
-                        const firstCollision = firstParams.get('collision') ?? firstParams.get('col');
-                        // Resolve bare/relative paths against the manifest URL — lets users host
-                        // the gallery JSON in the same folder as their model files.
-                        const manifestAbs = new URL(galleryUrl, location.href).href;
-                        const resolve = (u) => {
-                            if (!u) return u;
-                            if (/^(https?:|blob:|data:)/i.test(u)) return u;
-                            try { return new URL(u, manifestAbs).href; } catch { return u; }
-                        };
-                        if (firstContent) contentUrl = resolve(firstContent);
-                        if (firstCollision) collisionUrl = resolve(firstCollision);
-                    }
-                } catch (e) {
-                    console.warn('[gallery] failed to fetch manifest:', e);
-                }
-            }
-
+            // Build sseConfig synchronously so the second <script type="module"> below
+            // can safely destructure `window.sse` even while gallery work is still in
+            // flight. (Top-level `await` in this module does NOT halt subsequent module
+            // scripts — they run in parallel — so any await here before the assignment
+            // would race with the destructure in the body module and crash the page.)
             const sseConfig = {
                 poster: posterUrl && createImage(posterUrl),
                 skyboxUrl,
@@ -73,7 +37,6 @@
                 audioUrl,
                 contentUrl,
                 galleryUrl,
-                contents: fetch(contentUrl),
                 noui: url.searchParams.has('noui'),
                 noanim: url.searchParams.has('noanim'),
                 nofx: url.searchParams.has('nofx'),
@@ -87,6 +50,52 @@
                 heatmap: url.searchParams.has('heatmap'),
                 fullload: url.searchParams.has('fullload'),
             };
+
+            // Gallery resolution runs as a fire-and-forget promise that mutates
+            // sseConfig.contentUrl / sseConfig.collisionUrl in place. Anyone needing
+            // the resolved URLs (the model fetch below, index.ts collision loader)
+            // awaits sseConfig.galleryReady first.
+            const galleryReady = galleryUrl ? (async () => {
+                try {
+                    const response = await fetch(galleryUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                    const text = await response.text();
+                    // Lenient parse: a stale deploy with an unquoted "version" still loads.
+                    let manifest;
+                    try {
+                        manifest = JSON.parse(text);
+                    } catch {
+                        const repaired = text.replace(
+                            /("version"\s*:\s*)([A-Za-z_][A-Za-z0-9_-]*)(\s*[,}])/,
+                            '$1"$2"$3'
+                        );
+                        manifest = JSON.parse(repaired);
+                    }
+                    const firstEntry = manifest?.models?.[0];
+                    if (firstEntry?.shareUrl) {
+                        const firstParams = new URLSearchParams(new URL(firstEntry.shareUrl, location.href).search);
+                        const firstContent = firstParams.get('content') ?? firstParams.get('m');
+                        const firstCollision = firstParams.get('collision') ?? firstParams.get('col');
+                        // Resolve bare/relative paths against the manifest URL so users
+                        // can host the gallery JSON in the same folder as their models.
+                        const manifestAbs = new URL(galleryUrl, location.href).href;
+                        const resolve = (u) => {
+                            if (!u) return u;
+                            if (/^(https?:|blob:|data:)/i.test(u)) return u;
+                            try { return new URL(u, manifestAbs).href; } catch { return u; }
+                        };
+                        if (firstContent) sseConfig.contentUrl = resolve(firstContent);
+                        if (firstCollision) sseConfig.collisionUrl = resolve(firstCollision);
+                    }
+                } catch (e) {
+                    console.warn('[gallery] failed to fetch manifest:', e);
+                }
+            })() : Promise.resolve();
+
+            // The model fetch is gated on gallery resolution so it requests the
+            // gallery's first model URL when present (and the default URL otherwise).
+            sseConfig.contents = galleryReady.then(() => fetch(sseConfig.contentUrl));
+            sseConfig.galleryReady = galleryReady;
 
             window.sse = {
                 config: sseConfig,
