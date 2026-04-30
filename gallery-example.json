@@ -1,17 +1,17 @@
 {
-  "version": 1,
+  "version": testing,
   "models": [
     {
-      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-a.sog&c=COMPRESSED_PARAMS",
-      "title": "Version A"
+      "shareUrl": "https://nuninhosousa25.github.io/playcanvas_3dgs_viewer/?a=3.29&b=1.17&r=-0.23&x=-19.47&y=93.98&z=3.500&f=75.0&s=0.02&cl=1&lz=1&lv=0&lh=0&ep=1&zmin=1.01&zmax=15.1&content=https%3A%2F%2Fnuno-sousa.com%2Frepository%2Fuploads%2FAmy_converted.sog",
+      "title": "Peça 1"
     },
     {
-      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-b.sog&collision=https://your-host.com/col.glb&c=COMPRESSED_PARAMS",
-      "title": "Version B"
+      "shareUrl": "https://nuninhosousa25.github.io/playcanvas_3dgs_viewer/?a=-3.35&b=1.01&r=-0.14&x=-16.80&y=267.55&z=3.500&f=75.0&s=0.08&cl=1&lz=1&lv=0&lh=0&ep=0&zmin=1.01&zmax=15.1&content=https%3A%2F%2Fnuno-sousa.com%2Frepository%2Fuploads%2FAmy_converted.sog",
+      "title": "Peça 2"
     },
     {
-      "shareUrl": "https://your-viewer.com/?content=https://your-host.com/model-c.sog&audio=https://your-host.com/ambient.mp3&c=COMPRESSED_PARAMS",
-      "title": "Version C"
+      "shareUrl": "https://nuninhosousa25.github.io/playcanvas_3dgs_viewer/?a=3.41&b=1.32&r=1.18&x=1.85&y=61.99&z=3.500&f=75.0&s=0.05&bg=%23753e3e&cl=1&lz=1&lv=1&lh=0&ep=1&zmin=1.01&zmax=15.1&content=https%3A%2F%2Fnuno-sousa.com%2Frepository%2Fuploads%2Fns_5.sog",
+      "title": "peça 3"
     }
   ]
 }
