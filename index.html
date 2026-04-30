@@ -30,7 +30,19 @@
                 try {
                     const response = await fetch(galleryUrl);
                     if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-                    const manifest = await response.json();
+                    const text = await response.text();
+                    // Same lenient parse as index.ts so a stale deploy with an
+                    // unquoted "version" doesn't block the eager content fetch.
+                    let manifest;
+                    try {
+                        manifest = JSON.parse(text);
+                    } catch {
+                        const repaired = text.replace(
+                            /("version"\s*:\s*)([A-Za-z_][A-Za-z0-9_-]*)(\s*[,}])/,
+                            '$1"$2"$3'
+                        );
+                        manifest = JSON.parse(repaired);
+                    }
                     const firstEntry = manifest?.models?.[0];
                     if (firstEntry?.shareUrl) {
                         // Extract content (and optionally collision) from the first entry's share URL
@@ -298,26 +310,10 @@
                                 </div>
                             </div>
                             <div class="control-spacer"></div>
-                            <h1>Mode Switching</h1>
-                            <div class="control-item">
-                                <span class="control-action">Orbit Mode</span>
-                                <span class="control-key">1</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Fly Mode</span>
-                                <span class="control-key">2</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Walk Mode</span>
-                                <span class="control-key">3</span>
-                            </div>
+                            <h1>Other</h1>
                             <div class="control-item">
                                 <span class="control-action">Voxel Overlay</span>
                                 <span class="control-key">V</span>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-action">Play / Pause</span>
-                                <span class="control-key">Space</span>
                             </div>
                             <div class="control-item">
                                 <span class="control-action">Toggle Help</span>
