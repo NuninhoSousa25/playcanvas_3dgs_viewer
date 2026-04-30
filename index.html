@@ -28,7 +28,9 @@
 
             if (galleryUrl) {
                 try {
-                    const manifest = await fetch(galleryUrl).then(r => r.json());
+                    const response = await fetch(galleryUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                    const manifest = await response.json();
                     const firstEntry = manifest?.models?.[0];
                     if (firstEntry?.shareUrl) {
                         // Extract content (and optionally collision) from the first entry's share URL
@@ -36,8 +38,16 @@
                         // Short-coded: 'm' = content, 'col' = collision; also handle verbose names
                         const firstContent = firstParams.get('content') ?? firstParams.get('m');
                         const firstCollision = firstParams.get('collision') ?? firstParams.get('col');
-                        if (firstContent) contentUrl = firstContent;
-                        if (firstCollision) collisionUrl = firstCollision;
+                        // Resolve bare/relative paths against the manifest URL — lets users host
+                        // the gallery JSON in the same folder as their model files.
+                        const manifestAbs = new URL(galleryUrl, location.href).href;
+                        const resolve = (u) => {
+                            if (!u) return u;
+                            if (/^(https?:|blob:|data:)/i.test(u)) return u;
+                            try { return new URL(u, manifestAbs).href; } catch { return u; }
+                        };
+                        if (firstContent) contentUrl = resolve(firstContent);
+                        if (firstCollision) collisionUrl = resolve(firstCollision);
                     }
                 } catch (e) {
                     console.warn('[gallery] failed to fetch manifest:', e);
