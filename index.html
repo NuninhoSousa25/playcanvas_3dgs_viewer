@@ -20,10 +20,15 @@
             const audioUrl = url.searchParams.get('audio') ?? null;
             const settingsUrl = url.searchParams.has('settings') ? url.searchParams.get('settings') : './settings.json';
             const galleryUrl = url.searchParams.get('gallery') ?? null;
+            const experienceUrl = url.searchParams.get('experience') ?? null;
 
-            // Initial URLs — gallery resolution may overwrite these once the manifest loads.
+            // Initial URLs — gallery/experience resolution may overwrite these once
+            // their JSON loads. Experience mode gets NO default-model fallback: a
+            // broken config must show the error screen, not the demo model.
             const collisionUrl = url.searchParams.get('collision') ?? url.searchParams.get('voxel');
-            const contentUrl = url.searchParams.has('content') ? url.searchParams.get('content') : 'https://nuno-sousa.com/repository/uploads/Amy_converted.sog';
+            const contentUrl = url.searchParams.has('content')
+                ? url.searchParams.get('content')
+                : (experienceUrl ? null : 'https://nuno-sousa.com/repository/uploads/Amy_converted.sog');
 
             // Build sseConfig synchronously so the second <script type="module"> below
             // can safely destructure `window.sse` even while gallery work is still in
@@ -37,6 +42,7 @@
                 audioUrl,
                 contentUrl,
                 galleryUrl,
+                experienceUrl,
                 noui: url.searchParams.has('noui'),
                 noanim: url.searchParams.has('noanim'),
                 nofx: url.searchParams.has('nofx'),
@@ -92,10 +98,45 @@
                 }
             })() : Promise.resolve();
 
-            // The model fetch is gated on gallery resolution so it requests the
-            // gallery's first model URL when present (and the default URL otherwise).
-            sseConfig.contents = galleryReady.then(() => fetch(sseConfig.contentUrl));
+            // Experience resolution — same fire-and-forget pattern as the gallery.
+            // Fetches the client's experience JSON and overwrites content /
+            // collision / audio URLs before the model fetch starts. On failure,
+            // records the error so index.ts can show a branded error screen.
+            const experienceReady = experienceUrl ? (async () => {
+                try {
+                    const response = await fetch(experienceUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                    const exp = await response.json();
+                    // Resolve bare/relative asset paths against the config URL so
+                    // clients can keep JSON + assets in one folder.
+                    const expAbs = new URL(experienceUrl, location.href).href;
+                    const resolve = (u) => {
+                        if (!u) return u;
+                        if (/^(https?:|blob:|data:)/i.test(u)) return u;
+                        try { return new URL(u, expAbs).href; } catch { return u; }
+                    };
+                    if (exp.content) sseConfig.contentUrl = resolve(exp.content);
+                    if (exp.collision) sseConfig.collisionUrl = resolve(exp.collision);
+                    if (exp.audio) sseConfig.audioUrl = resolve(exp.audio);
+                    sseConfig.experience = exp;
+                } catch (e) {
+                    console.error('[experience] failed to load config:', e);
+                    sseConfig.experienceError = String(e);
+                }
+            })() : Promise.resolve();
+
+            // The model fetch is gated on gallery/experience resolution so it
+            // requests the resolved model URL when present (and the default URL
+            // otherwise). In experience mode a missing/broken config leaves
+            // contentUrl null — reject instead of fetching nothing.
+            sseConfig.contents = Promise.all([galleryReady, experienceReady]).then(() => {
+                if (!sseConfig.contentUrl) {
+                    return Promise.reject(new Error(sseConfig.experienceError ?? 'no content URL'));
+                }
+                return fetch(sseConfig.contentUrl);
+            });
             sseConfig.galleryReady = galleryReady;
+            sseConfig.experienceReady = experienceReady;
 
             window.sse = {
                 config: sseConfig,
