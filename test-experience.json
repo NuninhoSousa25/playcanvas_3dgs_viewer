@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "content": "rdr2.sog",
+  "collision": "rdr2_colision.voxel.json",
+  "camera": {
+    "position": [0, 0.8, 0],
+    "target": [0, 0.8, 8],
+    "fov": 75
+  },
+  "branding": {
+    "title": "Red Dead Vista",
+    "intro": "A captured scene from the frontier. Wander the space at your own pace — tap or click the ground to walk, drag to look around.",
+    "accent": "#c9762f",
+    "background": "#12100e"
+  },
+  "instructions": {
+    "desktop": "Click the ground to walk there\nW A S D to move · drag to look around",
+    "touch": "Tap the ground to walk there\nDrag to look around"
+  },
+  "tags": [
+    {
+      "position": [0.366, -3.762, 10.784],
+      "title": "The Overlook",
+      "text": "The lowest point of the capture, where the ground opens toward the valley. A good place to get your bearings."
+    },
+    {
+      "position": [4.551, 3.556, 0.791],
+      "title": "East Ridge",
+      "text": "Rock face rising along the eastern edge. Notice how the reconstruction holds detail even on the steep surfaces."
+    },
+    {
+      "position": [-2.975, 3.262, 8.179],
+      "title": "Timberline",
+      "text": "Scattered trees mark the far treeline. Splats like these are hardest to capture cleanly — look for the soft, feathered edges."
+    },
+    {
+      "position": [-0.251, 6.255, 3.775],
+      "title": "Canopy",
+      "text": "The highest tagged point, up among the branches. Hotspots fade with distance, so this one grows clearer as you approach."
+    }
+  ]
+}
