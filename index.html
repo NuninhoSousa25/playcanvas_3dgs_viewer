@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Viewer</title>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+        />
+        <link rel="stylesheet" href="./site.css" />
+        <style>
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                overflow: hidden;
+                background: #000;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="module" src="./site.js"></script>
+        <script>
+            // Opened from disk (an Experience Kit folder's page double-clicked before uploading),
+            // browsers run neither the viewer's code, a module, nor let the page read the files
+            // beside it: say so rather than show a blank page.
+            if (location.protocol === 'file:') {
+                const notice = document.createElement('div');
+                notice.id = 'fileNotice';
+                notice.style.cssText =
+                    'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;text-align:center;color:#fff;background:#101014;font:15px/1.5 system-ui,sans-serif';
+                const title = document.createElement('h1');
+                title.style.cssText = 'margin:0;font-size:20px;font-weight:600';
+                title.textContent = 'Open this page from a web server';
+                const text = document.createElement('p');
+                text.style.cssText = 'margin:0;max-width:480px;opacity:0.7';
+                text.textContent =
+                    'It was opened from a file on this computer, and browsers only run it from a web server. Upload the folder to a web host, or preview it in the Experience Kit.';
+                notice.append(title, text);
+                document.body.appendChild(notice);
+            }
+        </script>
+    </body>
+</html>
