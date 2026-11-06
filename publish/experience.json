@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "content": "scene/lod-meta.json",
+  "collision": "scene.voxel.json",
+  "camera": {
+    "position": [
+      -0.463,
+      18.739,
+      -2.215
+    ],
+    "target": [
+      -0.463,
+      18.739,
+      -4.215
+    ],
+    "fov": 75
+  },
+  "branding": {
+    "title": "teste 1"
+  }
+}
